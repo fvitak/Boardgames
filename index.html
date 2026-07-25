@@ -99,6 +99,7 @@ select.mini{font:inherit;font-size:12.5px;font-weight:600;color:var(--ink);backg
 .card:hover{transform:translateY(-4px);box-shadow:var(--shadow2)}
 .card.c-family{--catcolor:var(--fam)} .card.c-kids{--catcolor:var(--kids)}
 .card.c-adults{--catcolor:var(--adults)} .card.c-heavy{--catcolor:var(--heavy)}
+.c-family{--catcolor:var(--fam)} .c-kids{--catcolor:var(--kids)} .c-adults{--catcolor:var(--adults)} .c-heavy{--catcolor:var(--heavy)}
 
 .banner{position:relative;min-height:210px;padding:14px 16px;background:
   linear-gradient(160deg, color-mix(in srgb, var(--catcolor) 20%, #fff), color-mix(in srgb, var(--catcolor) 7%, #fff));
@@ -170,6 +171,39 @@ body.editing .edit-controls{display:flex}
 .toast{position:fixed;bottom:82px;left:50%;transform:translateX(-50%);background:var(--ink);border:1px solid rgba(0,0,0,.1);color:#fff6ea;
   padding:11px 17px;border-radius:13px;font-size:13px;z-index:70;opacity:0;transition:.25s;pointer-events:none;box-shadow:var(--shadow2)}
 .toast.show{opacity:1}
+
+.card{cursor:pointer}
+.tag.comm{border-color:var(--honey);color:#9a6a1e;background:color-mix(in srgb,var(--honey) 13%,#fff)}
+.detail-box{max-width:560px;max-height:88vh;overflow:auto;text-align:left}
+.d-hero{display:flex;gap:14px;margin-bottom:6px}
+.d-hero img{width:110px;height:auto;max-height:150px;object-fit:contain;border-radius:8px;box-shadow:0 3px 10px rgba(60,40,20,.2)}
+.d-title{font-family:Fraunces,serif;font-weight:600;font-size:20px;line-height:1.16;margin:0 0 7px}
+.d-badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.d-specs{display:grid;grid-template-columns:repeat(3,1fr);gap:7px 8px;font-size:12px;color:var(--muted);margin:12px 0}
+.d-specs .sp{display:flex;align-items:center;gap:4px}
+.d-specs .sp b{color:var(--ink);font-weight:600}
+.d-what{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:8px}
+.d-note{font-size:12.5px;color:var(--faint);font-style:italic;margin-bottom:8px}
+.d-take{font-size:13px;line-height:1.6;color:var(--ink);background:color-mix(in srgb,var(--terra) 6%,#fff);border-left:3px solid var(--terra);border-radius:0;padding:9px 11px;margin-bottom:4px}
+.d-take .lbl{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--terra);font-weight:700;display:block;margin-bottom:3px}
+.d-sec{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.d-sec h4{font-family:Fraunces,serif;font-weight:600;font-size:15px;margin:0 0 10px}
+.stars{display:inline-flex;gap:1px;font-size:15px;color:var(--honey);letter-spacing:1px}
+.stars .off{color:var(--line2)}
+.commrow{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.commrow .big{font-family:Fraunces,serif;font-weight:700;font-size:24px;line-height:1}
+.commrow .cnt{font-size:12px;color:var(--muted)}
+.cmt{border:1px solid var(--line);border-radius:11px;padding:9px 12px;margin-bottom:8px;background:var(--card2)}
+.cmt .m{font-size:11px;color:var(--muted);margin-bottom:3px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.cmt .who{font-weight:700;color:var(--ink)}
+.cmt .bd{font-size:13px;line-height:1.5;color:var(--ink)}
+.cform{margin-top:6px}
+.starpick{display:inline-flex;gap:3px;font-size:26px;color:var(--line2);cursor:pointer;margin-bottom:9px;user-select:none}
+.starpick span:hover,.starpick .on{color:var(--honey)}
+.cform input,.cform textarea{width:100%;font:inherit;font-size:14px;color:var(--ink);background:var(--card2);border:1px solid var(--line2);border-radius:10px;padding:10px;margin-bottom:9px;outline:none}
+.cform input:focus,.cform textarea:focus{border-color:var(--sage)}
+.cform textarea{min-height:66px;resize:vertical}
+.hp{position:absolute!important;left:-9999px!important;width:1px;height:1px;opacity:0}
 @media(max-width:560px){
   .wrap{padding:14px 11px 96px}
   .grid{grid-template-columns:1fr;gap:14px}
@@ -199,6 +233,7 @@ body.editing .edit-controls{display:flex}
       <div class="sub">Our board-game shortlist — researched, scored, and cozy.</div>
     </div>
     <div class="head-actions">
+      <button class="btn ghost" id="qrBtn" title="Share this view as a QR code / link">🔗 <span>Share</span></button>
       <button class="btn ghost" id="travelBtn" title="Show only games traveling with us">🧳 <span>Travel</span></button>
       <button class="btn" id="editBtn" title="Edit mode">✎ <span>Edit</span></button>
     </div>
@@ -252,8 +287,27 @@ body.editing .edit-controls{display:flex}
   </div>
 </div>
 
+<div class="modal" id="qrModal">
+  <div class="box" style="text-align:center">
+    <button class="x" id="qrX">×</button>
+    <h3>Share this view</h3>
+    <p>Scan to open the vault with the filters you have set right now.</p>
+    <div id="qrbox" style="display:flex;justify-content:center;margin-bottom:14px"></div>
+    <div id="qrLink" style="font-size:11px;color:var(--muted);word-break:break-all;margin-bottom:12px"></div>
+    <button class="btn on" id="qrCopy" style="width:100%;justify-content:center">Copy link</button>
+  </div>
+</div>
+
+<div class="modal" id="detailModal">
+  <div class="box detail-box">
+    <button class="x" id="detailX">×</button>
+    <div id="detailContent"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
 <script src="data.js"></script>
