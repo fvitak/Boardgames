@@ -1,0 +1,6 @@
+# nothing secret here — the Supabase anon key is public by design.
+# but ignore OS/editor cruft:
+.DS_Store
+Thumbs.db
+*.log
+.vercel
