@@ -293,9 +293,7 @@
       "</div>" +
       '<div class="body">' +
         '<div class="title">' + esc(g.name) + "</div>" +
-        '<div class="badges"><span class="tag cat">' + esc(g.category) + "</span>" +
-          (ratingByGame[g.id] ? '<span class="tag comm">★ ' + ratingByGame[g.id].avg.toFixed(1) + " · " + ratingByGame[g.id].count + "</span>" : "") +
-        "</div>" +
+        '<div class="badges"><span class="tag cat">' + esc(g.category) + "</span></div>" +
         '<div class="specs">' + specs.join("") + "</div>" +
         (g.what ? '<div class="what">' + esc(g.what) + "</div>" : "") +
         '<div class="take-wrap">' +
@@ -304,6 +302,7 @@
           '<div class="cfoot">' +
             (bggUrl ? '<a class="mini-link" href="' + bggUrl + '" target="_blank" rel="noopener">BGG ↗</a>' : "") +
             '<button class="mini-link" data-detail>💬 ' + ((commentsByGame[g.id] || []).length || "Rate") + "</button>" +
+            (ratingByGame[g.id] ? '<span class="cavg">' + starsHTML(ratingByGame[g.id].avg) + " <b>" + ratingByGame[g.id].avg.toFixed(1) + "</b></span>" : "") +
             (g.take ? '<button class="expand">Claude\'s Take ▾</button>' : "") +
           "</div>" +
         "</div>" +
@@ -325,15 +324,22 @@
     return '<div class="edit-controls">' +
       '<button class="tv' + (g.travel ? " on" : "") + '" data-tv>🧳 ' + (g.travel ? "Traveling" : "Not packed") + "</button>" +
       '<select data-status>' + opts + "</select>" +
+      '<button class="tv" data-note>📝 ' + (g.notes ? "Edit note" : "Add note") + "</button>" +
       "</div>";
   }
   function wireEdit(c, g) {
-    var tv = c.querySelector("[data-tv]"), sel = c.querySelector("[data-status]");
+    var tv = c.querySelector("[data-tv]"), sel = c.querySelector("[data-status]"), nb = c.querySelector("[data-note]");
     if (tv) tv.onclick = function () {
       g.travel = !g.travel; mark(g.id, "travel", g.travel);
       render();
     };
     if (sel) sel.onchange = function () { g.status = this.value; mark(g.id, "status", this.value); render(); };
+    if (nb) nb.onclick = function (e) {
+      e.stopPropagation();
+      var v = window.prompt("Your note for " + g.name + ":", g.notes || "");
+      if (v == null) return;
+      g.notes = v.trim(); mark(g.id, "notes", g.notes); render();
+    };
   }
 
   function mark(id, field, val) {
@@ -385,7 +391,7 @@
     var ids = Object.keys(dirty);
     if (!ids.length) { toast("Nothing to save"); return; }
     var ops = ids.map(function (id) {
-      var patch = {}; if ("travel" in dirty[id]) patch.travel = dirty[id].travel; if ("status" in dirty[id]) patch.status = dirty[id].status;
+      var patch = {}; if ("travel" in dirty[id]) patch.travel = dirty[id].travel; if ("status" in dirty[id]) patch.status = dirty[id].status; if ("notes" in dirty[id]) patch.notes = dirty[id].notes;
       return sb.from("games").update(patch).eq("id", id);
     });
     Promise.all(ops).then(function (res) {
