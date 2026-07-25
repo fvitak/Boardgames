@@ -23,6 +23,9 @@
   STATUSES.forEach(function (s) { view.statuses[s] = true; });
 
   var sb = null, user = null, editing = false;
+  var passMode = function () { return !!window.EDIT_PASSPHRASE; };
+  var unlocked = false;
+  try { unlocked = localStorage.getItem("gv_edit") === "1"; } catch (e) {}
 
   // parse "2-5 (best 3-4)" / "2 only" / "2-8+ (best 6-8)" -> {min,max}
   function parsePlayers(str) {
@@ -86,6 +89,7 @@
 
   function setUser(u) {
     user = u;
+    if (passMode()) { $("editBtn").style.display = ""; return; } // passphrase mode ignores auth
     var allowed = !u ? false :
       (!window.EDITOR_EMAILS || !window.EDITOR_EMAILS.length ||
         window.EDITOR_EMAILS.map(function (e) { return e.toLowerCase(); }).indexOf((u.email || "").toLowerCase()) > -1);
@@ -269,6 +273,17 @@
   function onEditClick() {
     if (editing) { toggleEdit(false); return; }
     if (!sb) { toggleEdit(true); toast("Demo mode: edits stay in this browser"); return; }
+    if (passMode()) {
+      if (unlocked) { toggleEdit(true); return; }
+      var entry = window.prompt("Enter the edit passphrase:");
+      if (entry == null) return;
+      if (entry === window.EDIT_PASSPHRASE) {
+        unlocked = true;
+        try { localStorage.setItem("gv_edit", "1"); } catch (e) {}
+        toggleEdit(true);
+      } else { toast("Wrong passphrase"); }
+      return;
+    }
     if (!user) { $("authModal").classList.add("show"); return; }
     if ($("editBtn")._allowed === false) { toast("This account can't edit"); return; }
     toggleEdit(true);
@@ -291,7 +306,7 @@
 
   function pushToCloud() {
     if (!sb) { toast("No cloud connected — use Export instead"); return; }
-    if (!user) { $("authModal").classList.add("show"); return; }
+    if (!passMode() && !user) { $("authModal").classList.add("show"); return; }
     var ids = Object.keys(dirty);
     if (!ids.length) { toast("Nothing to save"); return; }
     var ops = ids.map(function (id) {
