@@ -21,3 +21,10 @@ window.SUPABASE_ANON_KEY = "sb_publishable_7t9EB38asgKADsxR38mv5w_0F2N8GhW";  //
 // addresses you'll sign in with (yours + your wife's). Leave the
 // array empty to allow any signed-in user to edit.
 window.EDITOR_EMAILS = ["fvitak@gmail.com"];
+
+// ── Quick edit unlock (simpler than email login) ──
+// Set a passphrase here and Edit Mode just asks you to type it — no email,
+// no magic link. Leave it "" to use email sign-in instead.
+// NOTE: this passphrase is visible in the site's source, so it's a casual
+// lock, not real security. It also requires the "anon edit" SQL policy.
+window.EDIT_PASSPHRASE = "Vitak";
