@@ -2398,5 +2398,27 @@ window.GAMES_FALLBACK = [
   "bggId": "449137",
   "image": "https://cf.geekdo-images.com/iWaYgcBORhJBe59l4DuYmw__previewthumb/img/Sann34RGhIXzl6GzpDt3SM65Y9w=/fit-in/300x320/filters:strip_icc()/pic9025531.jpg",
   "travel": false
+ },
+ {
+  "id": "freelancers-a-crossroads-game",
+  "name": "Freelancers: A Crossroads Game",
+  "status": "Research",
+  "category": "Heavy",
+  "bestFor": "Beach - Adults",
+  "also": "Adults",
+  "score": 68,
+  "type": "App-driven co-op RPG-in-a-night, dice + worker placement",
+  "players": "3-7 (best 4-5)",
+  "ages": "14+",
+  "time": "90-180",
+  "weight": "2.1",
+  "bgg": "7.74",
+  "price": "$45-60",
+  "what": "A fully-voiced companion app acts as game master while you build a character and run a compressed fantasy RPG campaign in one evening. Five replayable campaigns with hundreds of branching paths, no prep and no GM required.",
+  "notes": "",
+  "take": "A fully-voiced app plays game master while you build a character, roll funky dice, and run a compressed fantasy RPG campaign in one evening - five replayable campaigns, no prep, and it won the 2023 Origins Best Thematic Game. Same Crossroads engine as Forgotten Waters, and 7.74 across 1,307 votes says the execution lands. But look hard at where it actually fits your table: the 3-player minimum means you and your wife can never play it alone, and 14+ with a 90-180 minute runtime rules out your son entirely. That leaves exactly one slot - adults at the beach house after the kids are down, ideally 4-5 of you. In that slot it is excellent, because the app carries the narration and nobody has to prep. Two more caveats: it is co-op with a shared party, so alpha-player risk is real, and the app is required, not optional. Scoring it as Research rather than Buy only because it is a one-occasion game at $50 - if the beach group would commit to a full evening, bump it.",
+  "bggId": "383206",
+  "image": "https://cf.geekdo-images.com/DuZnEeI06_5UKpv4t28Kyg__previewthumb/img/eZYmlIQRR8Nql7PhVbCpAJbMZ4E=/fit-in/300x320/filters:strip_icc()/pic7429703.jpg",
+  "travel": false
  }
 ];
