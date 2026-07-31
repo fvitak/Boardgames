@@ -14,6 +14,8 @@
     { key: "Heavy",  cls: "c-heavy",  color: "#f59e0b" }
   ];
   var STATUSES = ["Own", "Buy", "Hold", "Research", "Backed", "Pass"];
+  var STATUS_LABEL = { Pass: "Passed" };
+  function statusLabel(s) { return STATUS_LABEL[s] || s; }
   var CAT_CLASS = { Family: "c-family", Kids: "c-kids", Adults: "c-adults", Heavy: "c-heavy" };
 
   // ---- state ----
@@ -106,6 +108,7 @@
     $("players").value = view.players;
     $("pval").textContent = view.players === 0 ? "Any" : (view.players >= 10 ? "10+" : String(view.players));
     $("pclear").hidden = view.players === 0;
+    $("travelToggle").classList.toggle("active", view.travelOnly);
     buildCats();
   }
   function openQR() {
@@ -170,6 +173,11 @@
   function bindControls() {
     $("q").oninput = function () { view.q = this.value.toLowerCase(); render(); };
     $("sort").onchange = function () { view.sort = this.value; render(); };
+    $("travelToggle").onclick = function () {
+      view.travelOnly = !view.travelOnly;
+      this.classList.toggle("active", view.travelOnly);
+      render();
+    };
     $("players").oninput = function () {
       view.players = parseInt(this.value, 10) || 0;
       $("pval").textContent = view.players === 0 ? "Any" : (view.players >= 10 ? "10+" : String(view.players));
@@ -249,38 +257,33 @@
     renderStats();
     updateURL();
     $("foot").innerHTML = "Showing <b style='color:var(--txt)'>" + list.length + "</b> of " + games.length +
-      " games &nbsp;·&nbsp; scores rank each game within its category &nbsp;·&nbsp; a Pass can outscore a Buy on purpose.";
+      " games &nbsp;·&nbsp; scores rank each game within its category &nbsp;·&nbsp; a Passed game can outscore a Buy on purpose.";
   }
 
   function renderStats() {
     var counts = {}; STATUSES.forEach(function (s) { counts[s] = 0; });
-    var travel = 0;
-    games.forEach(function (g) { if (counts[g.status] != null) counts[g.status]++; if (g.travel) travel++; });
+    games.forEach(function (g) { if (counts[g.status] != null) counts[g.status]++; });
     var el = $("stats"); el.innerHTML = "";
 
     function addStat(label, count, active, onclick) {
       var b = document.createElement("button");
       b.type = "button";
       b.className = "stat" + (active ? " active" : "");
-      b.innerHTML = "<b>" + count + "</b><span>" + label + "</span>";
+      b.innerHTML = (editing ? "<b>" + count + "</b>" : "") + "<span>" + label + "</span>";
       b.onclick = onclick;
       el.appendChild(b);
     }
 
-    addStat("Total", games.length, view.statusSel.length === 0, function () {
+    addStat("All", games.length, view.statusSel.length === 0, function () {
       view.statusSel = [];
       render();
     });
     STATUSES.forEach(function (s) {
-      addStat(s, counts[s], view.statusSel.indexOf(s) > -1, function () {
+      addStat(statusLabel(s), counts[s], view.statusSel.indexOf(s) > -1, function () {
         var i = view.statusSel.indexOf(s);
         if (i > -1) view.statusSel.splice(i, 1); else view.statusSel.push(s);
         render();
       });
-    });
-    addStat("🧳 Travel", travel, view.travelOnly, function () {
-      view.travelOnly = !view.travelOnly;
-      render();
     });
   }
 
@@ -310,7 +313,7 @@
         (g.travel ? '<span class="travel-ribbon">🧳 Packed</span>' : "") +
         '<div class="meta">' +
           (g.score != null && g.score !== "" ? '<div class="b-score"><b>' + g.score + "</b><span>SCORE</span></div>" : "") +
-          '<span class="pill st-' + esc(g.status) + '">' + esc(g.status) + "</span>" +
+          '<span class="pill st-' + esc(g.status) + '">' + esc(statusLabel(g.status)) + "</span>" +
         "</div>" +
       "</div>" +
       '<div class="body">' +
@@ -359,7 +362,7 @@
       img +
       '<div class="lph" style="' + (g.image ? "display:none" : "") + '">' + initial + "</div>" +
       '<div class="lscore">' + (g.score != null && g.score !== "" ? "<b>" + g.score + "</b>" : "<b>–</b>") + "</div>" +
-      '<span class="pill st-' + esc(g.status) + '">' + esc(g.status) + "</span>" +
+      '<span class="pill st-' + esc(g.status) + '">' + esc(statusLabel(g.status)) + "</span>" +
       '<div class="lmain">' +
         '<div class="lname">' + esc(g.name) + "</div>" +
         '<div class="lspecs">' + specs + "</div>" +
@@ -376,7 +379,7 @@
   }
 
   function editControls(g) {
-    var opts = STATUSES.map(function (s) { return '<option value="' + s + '"' + (s === g.status ? " selected" : "") + ">" + s + "</option>"; }).join("");
+    var opts = STATUSES.map(function (s) { return '<option value="' + s + '"' + (s === g.status ? " selected" : "") + ">" + esc(statusLabel(s)) + "</option>"; }).join("");
     return '<div class="edit-controls">' +
       '<button class="tv' + (g.travel ? " on" : "") + '" data-tv>🧳 ' + (g.travel ? "Traveling" : "Not packed") + "</button>" +
       '<select data-status>' + opts + "</select>" +
@@ -431,6 +434,7 @@
     $("editBtn").classList.toggle("on", on);
     $("editBtn").querySelector("span").textContent = on ? "Done" : "Edit";
     $("savebar").classList.toggle("show", on && Object.keys(dirty).length > 0);
+    renderStats();
   }
   function sendMagicLink() {
     var email = ($("authEmail").value || "").trim();
@@ -498,7 +502,7 @@
       '<div class="d-hero">' + img +
         "<div><div class='d-title'>" + esc(g.name) + "</div>" +
           '<div class="d-badges"><span class="tag cat c-' + (g.category || "").toLowerCase() + '">' + esc(g.category) + "</span>" +
-            '<span class="pill st-' + esc(g.status) + '">' + esc(g.status) + "</span>" +
+            '<span class="pill st-' + esc(g.status) + '">' + esc(statusLabel(g.status)) + "</span>" +
             (g.score != null && g.score !== "" ? '<span class="tag">Score ' + g.score + "</span>" : "") + "</div>" +
         "</div></div>" +
       '<div class="d-specs">' + specs + "</div>" +

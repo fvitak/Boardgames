@@ -64,7 +64,8 @@ a{color:inherit}
 .search input::placeholder{color:var(--faint)}
 .search input:focus{border-color:var(--sage);box-shadow:0 0 0 3px rgba(127,154,107,.18)}
 .search svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);opacity:.45}
-.cats{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:11px}
+.cats-row{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:11px}
+.cats{display:contents}
 .chip{font:inherit;font-weight:600;font-size:13.5px;padding:9px 15px;border-radius:999px;cursor:pointer;
   background:var(--card);border:1px solid var(--line);color:var(--muted);box-shadow:var(--shadow);transition:.15s;display:inline-flex;gap:8px;align-items:center}
 .chip:hover{color:var(--ink);transform:translateY(-1px)}
@@ -75,8 +76,9 @@ a{color:inherit}
 .chip.active.c-kids{background:var(--kids)}
 .chip.active.c-adults{background:var(--adults)}
 .chip.active.c-heavy{background:var(--heavy)}
+.chip.travel-chip{margin-left:auto}
+.chip.active.travel-chip{background:var(--sage)}
 
-.row2{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 select.mini{font:inherit;font-size:12.5px;font-weight:600;color:var(--ink);background:var(--card);
   border:1px solid var(--line2);border-radius:11px;padding:9px 12px;cursor:pointer;outline:none;box-shadow:var(--shadow)}
 .playerbar{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--line);
@@ -242,10 +244,10 @@ body.editing .edit-controls{display:flex}
   .stat b{font-size:18px}
   .banner{min-height:220px}
   .banner img{max-width:60%;max-height:250px}
-  .cats{gap:7px}
+  .cats-row{gap:7px}
   .chip{font-size:13px;padding:9px 13px}
+  .chip.travel-chip{margin-left:0}
   .controls{padding:10px 0}
-  .row2{gap:7px}
   select.mini{flex:1}
   .playerbar{flex-wrap:wrap;gap:9px}
   .playerbar input[type=range]{flex-basis:100%;order:3}
@@ -276,13 +278,9 @@ body.editing .edit-controls{display:flex}
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
       <input id="q" type="search" placeholder="Search games, mechanics, notes…" autocomplete="off" />
     </div>
-    <div class="cats" id="cats"></div>
-    <div class="playerbar">
-      <span class="plabel">👥 Players<span class="pval" id="pval">Any</span></span>
-      <input type="range" id="players" min="0" max="10" step="1" value="0" aria-label="Filter by player count" />
-      <button class="pclear" id="pclear" hidden>Clear</button>
-    </div>
-    <div class="row2">
+    <div class="cats-row">
+      <div class="cats" id="cats"></div>
+      <button class="chip travel-chip" id="travelToggle" type="button" title="Show only games traveling with us">🧳 Travel</button>
       <select class="mini" id="sort">
         <option value="score-desc">Sort: Score (high→low)</option>
         <option value="score-asc">Score (low→high)</option>
@@ -291,6 +289,11 @@ body.editing .edit-controls{display:flex}
         <option value="weight-desc">Weight (heavy→light)</option>
         <option value="weight-asc">Weight (light→heavy)</option>
       </select>
+    </div>
+    <div class="playerbar">
+      <span class="plabel">👥 Players<span class="pval" id="pval">Any</span></span>
+      <input type="range" id="players" min="0" max="10" step="1" value="0" aria-label="Filter by player count" />
+      <button class="pclear" id="pclear" hidden>Clear</button>
     </div>
   </div>
 

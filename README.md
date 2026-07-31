@@ -74,11 +74,12 @@ In this mode, the **Edit** button still works but changes only live in your brow
 
 ## Using the vault
 
-- **Category chips** (Family / Kids / Adults / Heavy) + **search** stack together with the status totals below.
-- The **totals row** (Total / Own / Buy / Hold / Research / Backed / Pass / 🧳 Travel) doubles as the status filter —
-  tap **Total** to see everything, or tap one or more statuses to show just those (multi-select; tapping Total again
-  clears the selection). **🧳 Travel** is a separate toggle that narrows to games flagged as traveling with you.
-- **Sort** by score, BGG rating, or weight.
+- The **status row** (All / Own / Buy / Hold / Research / Backed / Passed) doubles as the status filter — tap
+  **All** to see everything, or tap one or more statuses to show just those (multi-select; tapping All again
+  clears the selection). Counts above each label only show while in Edit mode.
+- **Category chips** (Family / Kids / Adults / Heavy), the **🧳 Travel** toggle, and **Sort** (by score, BGG
+  rating, or weight) sit on one line with search below. Travel narrows to games flagged as traveling with you,
+  independent of the status filter.
 - **My Take ▾** on each card expands the full recommendation.
 
 ### Editing (you + your wife)
@@ -105,5 +106,5 @@ The four categories are a *dedication/audience* axis, not just player count:
 Each card also keeps its original detailed label (e.g. *Beach – Adults*, *Couple (2P)*)
 as a badge, so the finer grouping isn't lost.
 
-*Scores rank each game within its category. A **Pass** can score higher than a **Buy** —
+*Scores rank each game within its category. A **Passed** game can score higher than a **Buy** —
 that's intentional: it flags a game that's better than the reason it was set aside.*
