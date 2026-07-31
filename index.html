@@ -102,6 +102,33 @@ select.mini{font:inherit;font-size:12.5px;font-weight:600;color:var(--ink);backg
 .card.c-adults{--catcolor:var(--adults)} .card.c-heavy{--catcolor:var(--heavy)}
 .c-family{--catcolor:var(--fam)} .c-kids{--catcolor:var(--kids)} .c-adults{--catcolor:var(--adults)} .c-heavy{--catcolor:var(--heavy)}
 
+.list{display:flex;flex-direction:column;gap:9px;margin-top:16px}
+.lrow{position:relative;cursor:pointer;background:var(--card);border:1px solid var(--line);border-radius:14px;
+  box-shadow:var(--shadow);transition:.15s;display:flex;align-items:center;gap:12px;padding:9px 13px}
+.lrow:hover{transform:translateY(-2px);box-shadow:var(--shadow2)}
+.lrow.c-family{--catcolor:var(--fam)} .lrow.c-kids{--catcolor:var(--kids)}
+.lrow.c-adults{--catcolor:var(--adults)} .lrow.c-heavy{--catcolor:var(--heavy)}
+.lrow .limg,.lrow .lph{width:42px;height:42px;border-radius:8px;flex:none;object-fit:cover}
+.lrow .lph{display:flex;align-items:center;justify-content:center;font-family:Fraunces,serif;font-weight:700;font-size:16px;
+  color:color-mix(in srgb,var(--catcolor) 70%,#3a322b);background:color-mix(in srgb, var(--catcolor) 16%, #fff)}
+.lrow .lscore{width:32px;height:32px;border-radius:50%;background:rgba(255,251,244,.95);border:2px solid var(--catcolor);
+  display:flex;align-items:center;justify-content:center;flex:none}
+.lrow .lscore b{font-family:Fraunces,serif;font-weight:700;font-size:12.5px;line-height:1;color:var(--ink)}
+.lrow .pill{flex:none}
+.lrow .lmain{display:flex;flex-direction:column;gap:3px;min-width:150px;flex:1 1 190px}
+.lrow .lname{font-family:Fraunces,serif;font-weight:600;font-size:14.5px;color:var(--ink);line-height:1.2}
+.lrow .lspecs{display:flex;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:11.5px}
+.lrow .lspecs .sp{display:flex;align-items:center;gap:3px;white-space:nowrap}
+.lrow .lspecs b{color:var(--ink);font-weight:600}
+.lrow .lwhat{flex:2 1 240px;color:var(--muted);font-size:12px;line-height:1.4;
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.lrow .edit-controls{flex:1 1 100%;margin-top:8px;padding-top:8px}
+@media(max-width:640px){
+  .lrow{flex-wrap:wrap}
+  .lrow .lwhat{flex-basis:100%}
+  .lrow .lmain{flex-basis:100%}
+}
+
 .banner{position:relative;min-height:210px;padding:14px 16px;background:
   linear-gradient(160deg, color-mix(in srgb, var(--catcolor) 20%, #fff), color-mix(in srgb, var(--catcolor) 7%, #fff));
   display:flex;align-items:center;justify-content:flex-start;overflow:hidden}
@@ -237,6 +264,7 @@ body.editing .edit-controls{display:flex}
       <div class="sub">Our board-game shortlist — researched, scored, and cozy.</div>
     </div>
     <div class="head-actions">
+      <button class="btn ghost" id="viewBtn" title="Toggle grid / list view"><span class="vicon">▦</span> <span>Grid view</span></button>
       <button class="btn ghost" id="qrBtn" title="Share this view as a QR code / link">🔗 <span>Share</span></button>
       <button class="btn ghost" id="travelBtn" title="Show only games traveling with us">🧳 <span>Travel</span></button>
       <button class="btn" id="editBtn" title="Edit mode">✎ <span>Edit</span></button>

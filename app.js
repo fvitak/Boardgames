@@ -27,6 +27,9 @@
   var unlocked = false;
   try { unlocked = localStorage.getItem("gv_edit") === "1"; } catch (e) {}
 
+  var viewMode = "grid";
+  try { viewMode = localStorage.getItem("gv_view") === "list" ? "list" : "grid"; } catch (e) {}
+
   // parse "2-5 (best 3-4)" / "2 only" / "2-8+ (best 6-8)" -> {min,max}
   function parsePlayers(str) {
     var s = String(str || "");
@@ -118,7 +121,7 @@
   }
 
   function init() {
-    buildCats(); buildStatusFilter(); bindControls(); applyViewFromURL();
+    buildCats(); buildStatusFilter(); bindControls(); updateViewBtn(); applyViewFromURL();
     var haveSb = window.SUPABASE_URL && window.SUPABASE_ANON_KEY && window.supabase;
     if (haveSb) {
       sb = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
@@ -189,6 +192,7 @@
       render();
     };
     $("pclear").onclick = function () { view.players = 0; $("players").value = 0; $("pval").textContent = "Any"; this.hidden = true; render(); };
+    $("viewBtn").onclick = function () { setViewMode(viewMode === "grid" ? "list" : "grid"); };
     $("editBtn").onclick = onEditClick;
     $("exportBtn").onclick = exportData;
     $("pushBtn").onclick = pushToCloud;
@@ -204,6 +208,20 @@
       if (navigator.clipboard) navigator.clipboard.writeText(t).then(function () { toast("Link copied"); }, function () { toast("Copy failed"); });
       else toast("Copy not supported");
     };
+  }
+
+  // ---- view mode ----
+  function updateViewBtn() {
+    var b = $("viewBtn");
+    b.classList.toggle("on", viewMode === "list");
+    b.querySelector(".vicon").textContent = viewMode === "list" ? "☰" : "▦";
+    b.querySelector("span:last-child").textContent = viewMode === "list" ? "List view" : "Grid view";
+  }
+  function setViewMode(m) {
+    viewMode = m;
+    try { localStorage.setItem("gv_view", m); } catch (e) {}
+    updateViewBtn();
+    render();
   }
 
   // ---- filtering / sorting ----
@@ -239,9 +257,10 @@
   function render() {
     var list = visible();
     var grid = $("grid");
+    grid.className = viewMode === "list" ? "list" : "grid";
     grid.innerHTML = "";
     $("empty").style.display = list.length ? "none" : "block";
-    list.forEach(function (g) { grid.appendChild(card(g)); });
+    list.forEach(function (g) { grid.appendChild(viewMode === "list" ? listRow(g) : card(g)); });
     renderStats();
     updateURL();
     $("foot").innerHTML = "Showing <b style='color:var(--txt)'>" + list.length + "</b> of " + games.length +
@@ -313,6 +332,40 @@
     if (ex) ex.onclick = function (e) { e.stopPropagation(); tk.classList.toggle("open"); ex.textContent = tk.classList.contains("open") ? "Claude's Take ▴" : "Claude's Take ▾"; };
     c.addEventListener("click", function (e) {
       if (e.target.closest("a,select,input,textarea,.edit-controls,.expand,.take")) return;
+      openDetail(g);
+    });
+    wireEdit(c, g);
+    return c;
+  }
+
+  function listRow(g) {
+    var c = document.createElement("div");
+    c.className = "lrow " + (CAT_CLASS[g.category] || "c-family");
+    var sc = function (v) { v = String(v == null ? "" : v).split("(")[0].split(" /")[0].trim(); return v || "–"; };
+    var specs = [
+      ["👥", sc(g.players)], ["⏱", sc(g.time)], ["🎯", sc(g.ages)],
+      ["🧠", sc(g.weight)], ["⭐", sc(g.bgg)]
+    ].map(function (p) { return '<span class="sp">' + p[0] + " <b>" + esc(p[1]) + "</b></span>"; }).join("");
+
+    var initial = esc((g.name || "?").charAt(0));
+    var img = g.image
+      ? '<img class="limg" src="' + esc(g.image) + '" alt="' + esc(g.name) + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'" />'
+      : "";
+
+    c.innerHTML =
+      img +
+      '<div class="lph" style="' + (g.image ? "display:none" : "") + '">' + initial + "</div>" +
+      '<div class="lscore">' + (g.score != null && g.score !== "" ? "<b>" + g.score + "</b>" : "<b>–</b>") + "</div>" +
+      '<span class="pill st-' + esc(g.status) + '">' + esc(g.status) + "</span>" +
+      '<div class="lmain">' +
+        '<div class="lname">' + esc(g.name) + "</div>" +
+        '<div class="lspecs">' + specs + "</div>" +
+      "</div>" +
+      (g.what ? '<div class="lwhat">' + esc(g.what) + "</div>" : "") +
+      editControls(g);
+
+    c.addEventListener("click", function (e) {
+      if (e.target.closest("a,select,input,textarea,.edit-controls")) return;
       openDetail(g);
     });
     wireEdit(c, g);
