@@ -47,11 +47,14 @@ a{color:inherit}
 .btn.on{background:linear-gradient(180deg,#fceee0,#f8e3cf);border-color:var(--terra);color:#9c4325}
 .btn.ghost{background:var(--card2)}
 
-.stats{display:none;gap:9px;flex-wrap:wrap;margin:0 2px 18px}
-body.editing .stats{display:flex}
-.stat{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:11px 15px;box-shadow:var(--shadow);min-width:76px}
+.stats{display:flex;gap:9px;flex-wrap:wrap;margin:0 2px 18px}
+.stat{font:inherit;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:15px;padding:11px 15px;
+  box-shadow:var(--shadow);min-width:76px;cursor:pointer;transition:.15s}
+.stat:hover{transform:translateY(-2px);box-shadow:var(--shadow2)}
 .stat b{font-family:Fraunces,serif;font-weight:600;font-size:21px;display:block;line-height:1;color:var(--ink)}
 .stat span{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.stat.active{background:linear-gradient(180deg,#fceee0,#f8e3cf);border-color:var(--terra)}
+.stat.active b,.stat.active span{color:#9c4325}
 
 .controls{position:sticky;top:0;z-index:20;padding:12px 0 12px;margin-bottom:4px;
   background:linear-gradient(180deg,var(--bg) 66%,rgba(244,236,224,0))}
@@ -89,10 +92,6 @@ select.mini{font:inherit;font-size:12.5px;font-weight:600;color:var(--ink);backg
 .playerbar .pclear{font:inherit;font-size:11.5px;font-weight:600;color:var(--muted);background:var(--card2);
   border:1px solid var(--line2);border-radius:9px;padding:6px 10px;cursor:pointer;white-space:nowrap}
 .playerbar .pclear[hidden]{display:none}
-.statusfilter{display:flex;gap:6px;flex-wrap:wrap}
-.sf{font:inherit;font-weight:600;font-size:12px;padding:7px 11px;border-radius:999px;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--muted);transition:.12s;box-shadow:var(--shadow)}
-.sf.off{opacity:.42;text-decoration:line-through}
-.sf .sdot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
 
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-top:16px}
 .card{position:relative;background:var(--card);border:1px solid var(--line);border-radius:var(--r);
@@ -266,7 +265,6 @@ body.editing .edit-controls{display:flex}
     <div class="head-actions">
       <button class="btn ghost" id="viewBtn" title="Toggle grid / list view"><span class="vicon">▦</span> <span>Grid view</span></button>
       <button class="btn ghost" id="qrBtn" title="Share this view as a QR code / link">🔗 <span>Share</span></button>
-      <button class="btn ghost" id="travelBtn" title="Show only games traveling with us">🧳 <span>Travel</span></button>
       <button class="btn" id="editBtn" title="Edit mode">✎ <span>Edit</span></button>
     </div>
   </header>
@@ -293,7 +291,6 @@ body.editing .edit-controls{display:flex}
         <option value="weight-desc">Weight (heavy→light)</option>
         <option value="weight-asc">Weight (light→heavy)</option>
       </select>
-      <div class="statusfilter" id="statusfilter"></div>
     </div>
   </div>
 

@@ -74,9 +74,11 @@ In this mode, the **Edit** button still works but changes only live in your brow
 
 ## Using the vault
 
-- **Category chips** (Family / Kids / Adults / Heavy) + **status filters** + **search** stack together.
+- **Category chips** (Family / Kids / Adults / Heavy) + **search** stack together with the status totals below.
+- The **totals row** (Total / Own / Buy / Hold / Research / Backed / Pass / 🧳 Travel) doubles as the status filter —
+  tap **Total** to see everything, or tap one or more statuses to show just those (multi-select; tapping Total again
+  clears the selection). **🧳 Travel** is a separate toggle that narrows to games flagged as traveling with you.
 - **Sort** by score, BGG rating, or weight.
-- **🧳 Travel** button shows only the games flagged as traveling with you.
 - **My Take ▾** on each card expands the full recommendation.
 
 ### Editing (you + your wife)

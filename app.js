@@ -19,8 +19,7 @@
   // ---- state ----
   var games = [];
   var dirty = {};            // id -> {travel?, status?}
-  var view = { cat: "All", q: "", sort: "score-desc", travelOnly: false, players: 0, statuses: {} };
-  STATUSES.forEach(function (s) { view.statuses[s] = true; });
+  var view = { cat: "All", q: "", sort: "score-desc", travelOnly: false, players: 0, statusSel: [] };
 
   var sb = null, user = null, editing = false;
   var passMode = function () { return !!window.EDIT_PASSPHRASE; };
@@ -90,8 +89,7 @@
     if (view.players > 0) p.set("players", view.players);
     if (view.sort !== "score-desc") p.set("sort", view.sort);
     if (view.travelOnly) p.set("travel", "1");
-    var offs = STATUSES.filter(function (s) { return !view.statuses[s]; });
-    if (offs.length) p.set("hide", offs.join(","));
+    if (view.statusSel.length) p.set("status", view.statusSel.join(","));
     var qs = p.toString();
     try { history.replaceState(null, "", location.pathname + (qs ? "?" + qs : "")); } catch (e) {}
   }
@@ -102,14 +100,13 @@
     if (p.get("players")) view.players = parseInt(p.get("players"), 10) || 0;
     if (p.get("sort")) view.sort = p.get("sort");
     if (p.get("travel") === "1") view.travelOnly = true;
-    if (p.get("hide")) p.get("hide").split(",").forEach(function (s) { if (s in view.statuses) view.statuses[s] = false; });
+    if (p.get("status")) view.statusSel = p.get("status").split(",").filter(function (s) { return STATUSES.indexOf(s) > -1; });
     $("q").value = p.get("q") || "";
     $("sort").value = view.sort;
     $("players").value = view.players;
     $("pval").textContent = view.players === 0 ? "Any" : (view.players >= 10 ? "10+" : String(view.players));
     $("pclear").hidden = view.players === 0;
-    $("travelBtn").classList.toggle("on", view.travelOnly);
-    buildCats(); buildStatusFilter();
+    buildCats();
   }
   function openQR() {
     updateURL();
@@ -121,7 +118,7 @@
   }
 
   function init() {
-    buildCats(); buildStatusFilter(); bindControls(); updateViewBtn(); applyViewFromURL();
+    buildCats(); bindControls(); updateViewBtn(); applyViewFromURL();
     var haveSb = window.SUPABASE_URL && window.SUPABASE_ANON_KEY && window.supabase;
     if (haveSb) {
       sb = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
@@ -170,21 +167,9 @@
       el.appendChild(b);
     });
   }
-  function buildStatusFilter() {
-    var el = $("statusfilter"); el.innerHTML = "";
-    var colors = { Own: "#38bdf8", Buy: "#34d399", Hold: "#fb923c", Research: "#facc15", Backed: "#c084fc", Pass: "#7c8099" };
-    STATUSES.forEach(function (s) {
-      var b = document.createElement("button");
-      b.className = "sf" + (view.statuses[s] ? "" : " off");
-      b.innerHTML = '<span class="sdot" style="background:' + colors[s] + '"></span>' + s;
-      b.onclick = function () { view.statuses[s] = !view.statuses[s]; buildStatusFilter(); render(); };
-      el.appendChild(b);
-    });
-  }
   function bindControls() {
     $("q").oninput = function () { view.q = this.value.toLowerCase(); render(); };
     $("sort").onchange = function () { view.sort = this.value; render(); };
-    $("travelBtn").onclick = function () { view.travelOnly = !view.travelOnly; this.classList.toggle("on", view.travelOnly); render(); };
     $("players").oninput = function () {
       view.players = parseInt(this.value, 10) || 0;
       $("pval").textContent = view.players === 0 ? "Any" : (view.players >= 10 ? "10+" : String(view.players));
@@ -230,7 +215,7 @@
     var out = games.filter(function (g) {
       if (view.cat !== "All" && g.category !== view.cat) return false;
       if (view.travelOnly && !g.travel) return false;
-      if (!view.statuses[g.status]) return false;
+      if (view.statusSel.length && view.statusSel.indexOf(g.status) < 0) return false;
       if (view.players > 0) {
         var n = view.players, p = g._p || { min: 1, max: 99 };
         if (n >= 10 ? p.max < 10 : (n < p.min || n > p.max)) return false;
@@ -272,12 +257,30 @@
     var travel = 0;
     games.forEach(function (g) { if (counts[g.status] != null) counts[g.status]++; if (g.travel) travel++; });
     var el = $("stats"); el.innerHTML = "";
-    var items = [["Total", games.length]].concat(STATUSES.map(function (s) { return [s, counts[s]]; }));
-    items.push(["🧳 Travel", travel]);
-    items.forEach(function (p) {
-      var d = document.createElement("div"); d.className = "stat";
-      d.innerHTML = "<b>" + p[1] + "</b><span>" + p[0] + "</span>";
-      el.appendChild(d);
+
+    function addStat(label, count, active, onclick) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "stat" + (active ? " active" : "");
+      b.innerHTML = "<b>" + count + "</b><span>" + label + "</span>";
+      b.onclick = onclick;
+      el.appendChild(b);
+    }
+
+    addStat("Total", games.length, view.statusSel.length === 0, function () {
+      view.statusSel = [];
+      render();
+    });
+    STATUSES.forEach(function (s) {
+      addStat(s, counts[s], view.statusSel.indexOf(s) > -1, function () {
+        var i = view.statusSel.indexOf(s);
+        if (i > -1) view.statusSel.splice(i, 1); else view.statusSel.push(s);
+        render();
+      });
+    });
+    addStat("🧳 Travel", travel, view.travelOnly, function () {
+      view.travelOnly = !view.travelOnly;
+      render();
     });
   }
 
