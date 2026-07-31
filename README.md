@@ -74,9 +74,12 @@ In this mode, the **Edit** button still works but changes only live in your brow
 
 ## Using the vault
 
-- The **status row** (All / Own / Buy / Hold / Research / Backed / Passed) doubles as the status filter — tap
+- The **status row** (All / Own / Buy / Maybe / Backed / Passed) doubles as the status filter — tap
   **All** to see everything, or tap one or more statuses to show just those (multi-select; tapping All again
   clears the selection). Counts above each label only show while in Edit mode.
+  ("Maybe" is a display-only merge of the old "Hold" and "Research" statuses — existing rows still have
+  those raw values in the database, `statusGroup()` in `app.js` just folds them into one button; new edits
+  write "Maybe" directly.)
 - **Category chips** (Family / Kids / Adults / Heavy), the **🧳 Travel** toggle, and **Sort** (by score, BGG
   rating, or weight) sit on one line with search below. Travel narrows to games flagged as traveling with you,
   independent of the status filter.

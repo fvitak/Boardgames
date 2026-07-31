@@ -13,9 +13,23 @@
     { key: "Adults", cls: "c-adults", color: "#f472b6" },
     { key: "Heavy",  cls: "c-heavy",  color: "#f59e0b" }
   ];
-  var STATUSES = ["Own", "Buy", "Hold", "Research", "Backed", "Pass"];
+  // Legacy "Hold" and "Research" records aren't migrated in the database —
+  // they're just folded into the "Maybe" group here for filtering/display.
+  var STATUS_GROUPS = {
+    Own: ["Own"],
+    Buy: ["Buy"],
+    Maybe: ["Maybe", "Hold", "Research"],
+    Backed: ["Backed"],
+    Pass: ["Pass"]
+  };
+  var STATUSES = Object.keys(STATUS_GROUPS);
+  var STATUS_TO_GROUP = {};
+  STATUSES.forEach(function (grp) {
+    STATUS_GROUPS[grp].forEach(function (raw) { STATUS_TO_GROUP[raw] = grp; });
+  });
+  function statusGroup(raw) { return STATUS_TO_GROUP[raw] || raw; }
   var STATUS_LABEL = { Pass: "Passed" };
-  function statusLabel(s) { return STATUS_LABEL[s] || s; }
+  function statusLabel(raw) { var g = statusGroup(raw); return STATUS_LABEL[g] || g; }
   var CAT_CLASS = { Family: "c-family", Kids: "c-kids", Adults: "c-adults", Heavy: "c-heavy" };
 
   // ---- state ----
@@ -223,7 +237,7 @@
     var out = games.filter(function (g) {
       if (view.cat !== "All" && g.category !== view.cat) return false;
       if (view.travelOnly && !g.travel) return false;
-      if (view.statusSel.length && view.statusSel.indexOf(g.status) < 0) return false;
+      if (view.statusSel.length && view.statusSel.indexOf(statusGroup(g.status)) < 0) return false;
       if (view.players > 0) {
         var n = view.players, p = g._p || { min: 1, max: 99 };
         if (n >= 10 ? p.max < 10 : (n < p.min || n > p.max)) return false;
@@ -262,7 +276,7 @@
 
   function renderStats() {
     var counts = {}; STATUSES.forEach(function (s) { counts[s] = 0; });
-    games.forEach(function (g) { if (counts[g.status] != null) counts[g.status]++; });
+    games.forEach(function (g) { var grp = statusGroup(g.status); if (counts[grp] != null) counts[grp]++; });
     var el = $("stats"); el.innerHTML = "";
 
     function addStat(label, count, active, onclick) {
@@ -313,7 +327,7 @@
         (g.travel ? '<span class="travel-ribbon">🧳 Packed</span>' : "") +
         '<div class="meta">' +
           (g.score != null && g.score !== "" ? '<div class="b-score"><b>' + g.score + "</b><span>SCORE</span></div>" : "") +
-          '<span class="pill st-' + esc(g.status) + '">' + esc(statusLabel(g.status)) + "</span>" +
+          '<span class="pill st-' + esc(statusGroup(g.status)) + '">' + esc(statusLabel(g.status)) + "</span>" +
         "</div>" +
       "</div>" +
       '<div class="body">' +
@@ -362,7 +376,7 @@
       img +
       '<div class="lph" style="' + (g.image ? "display:none" : "") + '">' + initial + "</div>" +
       '<div class="lscore">' + (g.score != null && g.score !== "" ? "<b>" + g.score + "</b>" : "<b>–</b>") + "</div>" +
-      '<span class="pill st-' + esc(g.status) + '">' + esc(statusLabel(g.status)) + "</span>" +
+      '<span class="pill st-' + esc(statusGroup(g.status)) + '">' + esc(statusLabel(g.status)) + "</span>" +
       '<div class="lmain">' +
         '<div class="lname">' + esc(g.name) + "</div>" +
         '<div class="lspecs">' + specs + "</div>" +
@@ -379,7 +393,7 @@
   }
 
   function editControls(g) {
-    var opts = STATUSES.map(function (s) { return '<option value="' + s + '"' + (s === g.status ? " selected" : "") + ">" + esc(statusLabel(s)) + "</option>"; }).join("");
+    var opts = STATUSES.map(function (s) { return '<option value="' + s + '"' + (s === statusGroup(g.status) ? " selected" : "") + ">" + esc(statusLabel(s)) + "</option>"; }).join("");
     return '<div class="edit-controls">' +
       '<button class="tv' + (g.travel ? " on" : "") + '" data-tv>🧳 ' + (g.travel ? "Traveling" : "Not packed") + "</button>" +
       '<select data-status>' + opts + "</select>" +
@@ -502,7 +516,7 @@
       '<div class="d-hero">' + img +
         "<div><div class='d-title'>" + esc(g.name) + "</div>" +
           '<div class="d-badges"><span class="tag cat c-' + (g.category || "").toLowerCase() + '">' + esc(g.category) + "</span>" +
-            '<span class="pill st-' + esc(g.status) + '">' + esc(statusLabel(g.status)) + "</span>" +
+            '<span class="pill st-' + esc(statusGroup(g.status)) + '">' + esc(statusLabel(g.status)) + "</span>" +
             (g.score != null && g.score !== "" ? '<span class="tag">Score ' + g.score + "</span>" : "") + "</div>" +
         "</div></div>" +
       '<div class="d-specs">' + specs + "</div>" +
